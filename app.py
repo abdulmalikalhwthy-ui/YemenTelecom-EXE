@@ -24,11 +24,13 @@ from bidi.algorithm import get_display
 # مكتبة Word
 from docx import Document
 
-# دالة مساعدة للوصول إلى الملفات المرفقة داخل EXE
+# دالة مساعدة للوصول إلى الملفات المرفقة (الصور والخط) داخل EXE أو مجلد التثبيت
 def resource_path(relative_path):
     try:
+        # PyInstaller يضع الملفات المؤقتة هنا
         base_path = sys._MEIPASS
     except Exception:
+        # في حال التشغيل العادي (أو بعد التثبيت بـ Inno Setup)
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
 
@@ -54,7 +56,7 @@ FONT_PATH = resource_path('NotoNaskhArabic-Regular.ttf')
 try:
     pdfmetrics.registerFont(TTFont('Arabic', FONT_PATH))
 except Exception as e:
-    print(f"تحذير: لم يتم العثور على الخط العربي. {e}")
+    print(f"تحذير: لم يتم العثور على الخط العربي. تأكد من وجوده. {e}")
 
 def ar(text):
     if pd.isna(text): return ""
@@ -209,7 +211,7 @@ DASHBOARD_TEMPLATE = """
         {% if not filename %}
             <div class="form-card" id="main-form">
                 <h3>1️⃣ استيراد ملف البيانات</h3>
-                <p style="font-size:14px; color:#555;">اختر ملف الإكسيل من هاتفك لرفعه وتحليله فوراً:</p>
+                <p style="font-size:14px; color:#555;">اختر ملف الإكسيل من جهازك لرفعه وتحليله فوراً:</p>
                 
                 <form method="POST" action="/upload" enctype="multipart/form-data" onsubmit="showLoader()">
                     <input type="file" name="file" accept=".xlsx, .xls" required>
@@ -218,7 +220,7 @@ DASHBOARD_TEMPLATE = """
 
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
 
-                <p style="font-size:12px; color:#777;">أو قراءة الملف الموجود مسبقاً في مجلد uploads باسم uploaded_file.xlsx:</p>
+                <p style="font-size:12px; color:#777;">أو قراءة الملف الموجود مسبقاً في مجلد uploads:</p>
                 <a href="/upload_existing" onclick="showLoader()" class="btn-submit btn-secondary">📂 قراءة الملف الموجود</a>
             </div>
             <div id="loading-div" style="display:none; text-align:center; background:#fff; padding:20px; border-radius:15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
@@ -296,7 +298,7 @@ RESULT_TEMPLATE = """
 """
 
 # ==========================================
-# المسارات
+# المسارات (Routes)
 # ==========================================
 
 @app.route('/login', methods=['POST'])
