@@ -1,4 +1,4 @@
-name: Build Windows EXE
+name: Build Windows EXE and Setup
 on: [push]
 
 jobs:
@@ -17,12 +17,19 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Install Inno Setup
+      run: choco install innosetup -y
+
     - name: Build EXE
       run: |
         pyinstaller --noconsole --onefile --add-data "*.png;." --add-data "*.jpg;." --add-data "*.ttf;." windows_app.py
 
-    - name: Upload EXE
+    - name: Build Setup
+      run: |
+        & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup.iss
+
+    - name: Upload Setup
       uses: actions/upload-artifact@v4
       with:
-        name: Yemen-Telecom-App
-        path: dist/*.exe
+        name: Yemen-Telecom-Setup
+        path: Output/*.exe
